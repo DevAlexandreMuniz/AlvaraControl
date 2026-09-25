@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlvaráControl - Confiança Contabilidade</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CSS Externo -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+    <!-- Header Mobile -->
+    <div class="mobile-header">
+        <div class="brand">
+            <i class="fa-solid fa-scale-balanced"></i>
+            <span>AlvaráControl</span>
+        </div>
+        <button class="mobile-toggle-btn" id="mobileToggleBtn" aria-label="Abrir Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-scale-balanced brand-icon"></i>
+                <div class="brand-text">
+                    <span class="app-name">AlvaráControl</span>
+                    <span class="office-name">Confiança Contabilidade</span>
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-filter="todos" data-module="alvaras">
+                    <a href="#"><i class="fa-solid fa-layer-group"></i> <span>Todos os Alvarás</span></a>
+                </li>
+                <li class="nav-item" data-filter="Funcionamento" data-module="alvaras">
+                    <a href="#"><i class="fa-solid fa-building"></i> <span>Funcionamento</span></a>
+                </li>
+                <li class="nav-item" data-filter="Sanitário" data-module="alvaras">
+                    <a href="#"><i class="fa-solid fa-notes-medical"></i> <span>Sanitário</span></a>
+                </li>
+                <li class="nav-item" data-filter="Ambiental" data-module="alvaras">
+                    <a href="#"><i class="fa-solid fa-leaf"></i> <span>Ambiental</span></a>
+                </li>
+                <li class="nav-item" data-filter="Bombeiros" data-module="alvaras">
+                    <a href="#"><i class="fa-solid fa-fire-extinguisher"></i> <span>Bombeiros (CBMRO)</span></a>
+                </li>
+                <li class="nav-separator">MÓDULOS EXTRAS</li>
+                <li class="nav-item" data-filter="cnd" data-module="cnd">
+                    <a href="#"><i class="fa-solid fa-file-shield"></i> <span>Gestão de CNDs</span></a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header-bar">
+                <div class="header-title">
+                    <h1 id="pageTitle">Painel Geral de Alvarás 2026</h1>
+                    <p id="pageSubtitle">Gestão e acompanhamento do status de licenças dos clientes do escritório</p>
+                </div>
+                <div class="action-btns">
+                    <button class="btn btn-outline" id="btnExport">
+                        <i class="fa-solid fa-file-csv"></i> Exportar CSV
+                    </button>
+                    <button class="btn btn-primary" id="btnNovo">
+                        <i class="fa-solid fa-plus"></i> <span id="btnNovoText">Novo Alvará</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Metrics Cards Grid -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total"><i class="fa-solid fa-folder-open"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Registrados</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon em-dia"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statEmDia">0</h3>
+                        <p>Aprovados / Em Dia</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon verificar"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statVerificar">0</h3>
+                        <p>Em Verificação / Pgto</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon vencido"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statVencido">0</h3>
+                        <p>Vencidos / Pendentes</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-grid" id="chartsSection">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fa-solid fa-chart-pie"></i> Distribuição por Situação</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fa-solid fa-chart-column"></i> <span id="typeChartTitle">Alvarás por Órgão Licenciador</span></h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filters Section -->
+            <section class="filters-card">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="searchInput" placeholder="Buscar por Empresa, CNPJ ou Obs...">
+                </div>
+                <select class="filter-select" id="tipoSelect">
+                    <option value="">Todos os Tipos</option>
+                    <option value="Funcionamento">Funcionamento</option>
+                    <option value="Sanitário">Sanitário</option>
+                    <option value="Ambiental">Ambiental</option>
+                    <option value="Bombeiros">Bombeiros (CBMRO)</option>
+                </select>
+                <select class="filter-select" id="situacaoSelect">
+                    <option value="">Todas as Situações</option>
+                    <option value="EM DIA / APROVADO">Em Dia / Aprovado</option>
+                    <option value="VERIFICAR">Verificar / Aguardando Pgto</option>
+                    <option value="VENCIDO">Vencido / Pendente</option>
+                    <option value="DISPENSADO">Dispensado</option>
+                </select>
+            </section>
+
+            <!-- Data Table Card -->
+            <section class="table-card">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr id="tableHeaderRow">
+                                <th>Empresa / Razão Social</th>
+                                <th>CNPJ</th>
+                                <th>Tipo de Licença</th>
+                                <th>Vencimento</th>
+                                <th>Situação / Status</th>
+                                <th>Documento</th>
+                                <th>Observações</th>
+                                <th style="text-align: center;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Injetado dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <div>
+                            <h4>Confiança Contabilidade</h4>
+                            <p>Soluções Contábeis, Fiscais e Societárias com Excelência.</p>
+                        </div>
+                    </div>
+                    <div class="footer-contacts">
+                        <div class="contact-item">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>(69) 3000-0000</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>contato@confiancacontabilidade.com.br</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>Porto Velho - RO</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 <strong>AlvaráControl</strong> | Desenvolvido para <strong>Confiança Contabilidade</strong>. Todos os direitos reservados.</p>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Modal Form (Alvará / CND) -->
+    <div class="modal-overlay" id="modalForm">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Cadastrar Novo Registro</h2>
+                <button class="btn-icon" id="btnCloseModal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="alvaraForm">
+                <div class="modal-body">
+                    <input type="hidden" id="recordId">
+                    <div class="form-group">
+                        <label for="empresa">Empresa / Razão Social</label>
+                        <input type="text" id="empresa" required placeholder="Ex: C R RODRIGUES LTDA">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="cnpj">CNPJ</label>
+                            <input type="text" id="cnpj" placeholder="00.000.000/0001-00">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefone">WhatsApp / Telefone (DDI + DDD + Número)</label>
+                            <input type="text" id="telefone" placeholder="Ex: 5569999999999">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tipo">Tipo</label>
+                            <select id="tipo" required>
+                                <!-- Injetado dinamicamente -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="vencimento">Vencimento / Data</label>
+                            <input type="text" id="vencimento" placeholder="Ex: 31/12/2026">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="situacao">Situação / Status</label>
+                            <select id="situacao" required>
+                                <option value="EM DIA">EM DIA / APROVADO</option>
+                                <option value="VERIFICAR">VERIFICAR</option>
+                                <option value="AG PGTO">AGUARDANDO PAGAMENTO</option>
+                                <option value="VENCIDO">VENCIDO</option>
+                                <option value="DISPENSADO">DISPENSADO</option>
+                                <option value="CADASTRAR">CADASTRAR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="documentoUrl">Link do Documento (Drive/Nuvem)</label>
+                            <input type="url" id="documentoUrl" placeholder="https://drive.google.com/...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="observacoes">Observações</label>
+                        <textarea id="observacoes" rows="3" placeholder="Anotações adicionais, pendências, etc."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" id="btnCancelModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts da Aplicação -->
+    <script src="assets/js/db.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
